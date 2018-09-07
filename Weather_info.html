@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <title>Weather Info</title>
+    <style>
+        #error_message {
+            position: absolute;
+            left: 5%;
+            right: 5%;
+            text-align: center;
+            top: 72%;
+            font-size: 18px;
+        }
+
+        #load {
+            position: absolute;
+            left: 50%;
+            top: 65%;
+            right: 50%;
+            margin: -50px 0 0 -50px;
+            text-align: center;
+            border: 10px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 10px solid #006dcc;
+            width: 100px;
+            height: 100px;
+            -webkit-animation: spin 2s linear infinite;
+        }
+
+        @-webkit-keyframes spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(360deg);
+            }
+        }
+
+
+
+        .col-xs-12 {
+            background: #006dcc;
+            color: white;
+            padding-top: 10px;
+            position: fixed;
+            left: 0;
+            bottom: 0;
+        }
+
+        @media only screen and (max-width: 1350px) {
+            .col-xs-3 {
+                width: 65%;
+            }
+            .col-xs-5 {
+                width: 100%;
+            }
+            .col-xs-2 {
+                width: 100%;
+                margin-bottom: 50px;
+            }
+            .col-xs-1 {
+                width: 50%;
+                margin-top: 20px;
+                margin-bottom: 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <br>
+    <div class="container-fluid">
+        <div class="jumbotron" style="height: 300px">
+            <h2 style="margin: 20px;">Weather Report</h2>
+            <p style="margin: 20px;">Get current weather updates of your favorite city right here...</p><br>
+            <div class="col-xs-3">
+                <input class="form-control" id="user_city" type="box" placeholder="Enter City Name">
+            </div>
+            <button class="btn btn-primary btn-md" onclick=getData()>GO!</button>
+
+        </div>
+        <div class="row" id="content">
+            <div class="col-xs-5">
+                <br>
+                <p id="info"></p>
+            </div>
+            <div class="col-xs-1">
+                <br>
+                <p text-align="center" id="0"></p>
+                <br>
+                <p id="Temperature"></p>
+            </div>
+            <div class="col-xs-1">
+                <br>
+                <p text-align="center" id="1"></p>
+                <br>
+                <p id="Weather Status"></p>
+            </div>
+            <div class="col-xs-1">
+                <br>
+                <p text-align="center" id="2"></p>
+                <br>
+                <p id="Humidity"></p>
+            </div>
+
+            <div class="col-xs-1">
+                <br>
+                <p text-align="center" id="3"></p>
+                <br>
+                <p id="Wind_Status"></p>
+            </div>
+            <div class="col-xs-1">
+                <br>
+                <p text-align="center" id="4"></p>
+                <br>
+                <p id="Precipitation"></p>
+            </div>
+            <div class="col-xs-2">
+                <br>
+                <p id="DateNTime"></p>
+            </div>
+
+
+        </div>
+        <div class="col-xs-12">
+            <p style="text-align: center">Copyright &#xA9 2018 Wipro Ltd.</p>
+        </div>
+        <div id="load"></div>
+        <div id="error_message"></div>
+    </div>
+</body>
+<script>
+
+    document.getElementById("load").style.visibility = "hidden";
+    function getData() {
+        setTimeout(function () {
+            if (document.getElementById("load").style.visibility == "visible")
+                document.getElementById("error_message").innerHTML = "No internet connection";
+        }, 5000);
+        document.getElementById("error_message").innerHTML = "";
+        document.getElementById("content").style.opacity = "0.1";
+        document.getElementById("load").style.visibility = "visible";
+        var cityName = document.getElementById("user_city").value;
+        fetch('http://api.apixu.com/v1/current.json?key=2a7ecebc9213425ca1f101807180509&q=' + cityName)
+            .then(function (response) {
+                return response.json();
+            }).then(function (result) {
+                if (result.hasOwnProperty('error')) {
+                    if (result.error.code == 1006) {
+                        document.getElementById("error_message").innerHTML = "City not found... &#x1F641";
+                        document.getElementById("load").style.visibility = "hidden";
+                    }
+
+                }
+                else {
+                    document.getElementById("DateNTime").innerHTML = "<b>City:</b> " + result.location.name + "<br><b>Country:</b> " + result.location.country + "<br><b>Date:</b> " + result.location.localtime.substring(0, 10) + "<br><b>Time:</b> " + result.location.localtime.substring(10);
+                    document.getElementById("DateNTime").style.textAlign = "right";
+                    var iconArray = [{ status: "clear", key: "bENeVK/" }, { status: "rain", key: "mdia4e/" }, { status: "cloud", key: "eKmTPe/" }, { status: "mis", key: "c2qPVK/" }, { status: "sun", key: "fVWHHz/" }, { status: "storm", key: "iCxDqK/" }, { status: "fog", key: "i6LNLK/" }];
+                    var temperature_key = ["bGztqK/", "cXNDqK/", "cyQBcz/"];
+                    var columnTiles = ["Temperature", "Weather Status", "Humidity", "Wind_Status", "Precipitation"];
+                    var path = 'https://image.ibb.co/';
+                    var link = '<a href="https://imgbb.com/">';
+                    for (var j = 0; j < columnTiles.length; j++) {
+                        index = "" + j;
+                        document.getElementById(columnTiles[j]).innerHTML = "";
+                        document.getElementById(index).innerHTML = columnTiles[j];
+                        document.getElementById(index).style.textAlign = "center";
+                        document.getElementById(columnTiles[j]).style.textAlign = "center";
+                    }
+                    document.getElementById("info").innerHTML = '<ul class="list-group"><li class="list-group-item">Temperature:<span class="badge">' + result.current.temp_c + ' &#176C</span></li><li class="list-group-item">Feels like:<span class="badge">' + result.current.feelslike_c + ' &#176C</span></li><li class="list-group-item">Weather Condition:<span class="badge">' + result.current.condition.text + '</span></li><li class="list-group-item">Wind Speed:<span class="badge">' + result.current.wind_kph + ' kmph</span></li><li class="list-group-item">Wind Direction:<span class="badge">' + result.current.wind_dir + '</span></li><li class="list-group-item">Pressure:<span class="badge">' + result.current.pressure_in + ' inches</span></li><li class="list-group-item">Precipitation:<span class="badge">' + result.current.precip_mm + ' mm</span></li><li class="list-group-item">Humidity:<span class="badge">' + result.current.humidity + ' g/m3</span></li></ul>';
+                    for (let i = 0; i < iconArray.length; i++) {
+                        if (result.current.condition.text.toLowerCase().search(iconArray[i].status) != -1) {
+                            document.getElementById("Weather Status").innerHTML = link + '<img src="' + path + iconArray[i].key + iconArray[i].status + '.png" alt="Weather Status" style="height: 100px"></a>';
+
+                        }
+                    }
+                    {
+                        if (result.current.temp_c > 33)
+                            document.getElementById("Temperature").innerHTML = link + '<img onload="remove()" src="' + path + temperature_key[0] + 'hot.png" alt="Hot" style="height: 100px"></a>';
+                        else if (result.current.temp_c < 20)
+                            document.getElementById("Temperature").innerHTML = link + '<img onload="remove()" src="' + path + temperature_key[1] + 'cold.png" alt="Cold" style="height: 100px"></a>';
+                        else
+                            document.getElementById("Temperature").innerHTML = link + '<img onload="remove()" src="' + path + temperature_key[2] + 'moderate.png" alt="Moderate" style="height: 100px"></a>';
+                    }
+                    document.getElementById("3").innerHTML = "Wind Status";
+                    var result_values = [result.current.humidity, result.current.wind_kph, result.current.precip_mm];
+                    var threshold_values = [80, 15, 0.1];
+                    var newColumnTiles = [{ status: "Humidity", key: ["bubHHz/", "fQDa4e/"] }, { status: "Wind_Status", key: ["dhUhje/", "i7KRAK/"] }, { status: "Precipitation", key: ["mzKtqK/", "ieT8Pe/"] }];
+                    var flag = 0;
+                    for (var k = 0; k < threshold_values.length; k++) {
+                        flag = 0;
+                        if (result_values[k] > threshold_values[k])
+                            flag = flag + 1;
+                        var iconIndex = "" + flag;
+                        document.getElementById(newColumnTiles[k].status).innerHTML = link + '<img src="' + path + newColumnTiles[k].key[flag] + newColumnTiles[k].status + iconIndex + '.png" alt="' + newColumnTiles[k] + '" style="height: 100px"></a>';
+                    }
+                }
+
+            });
+        cityName = "";
+    }
+    function remove() {
+        document.getElementById("content").style.opacity = "1";
+        document.getElementById("load").style.visibility = "hidden";
+    }
+</script>
+
+</html>
