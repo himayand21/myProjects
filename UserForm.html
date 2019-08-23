@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <style>
+        body {
+            text-align: center;
+        }
+
+        h3 {
+            font-size: 1.6em;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: cyan;
+            border-radius: 8px;
+            display: inline-block;
+            padding: 10px 143px 10px 143px;
+
+        }
+
+        #DisplayTable {
+            border-collapse: collapse;
+            align-content: center;
+            text-align: center;
+            width: 100%;
+        }
+
+        #FirstName {
+            height: 17px;
+        }
+
+        #LastName {
+            height: 17px;
+        }
+
+        #Age {
+            height: 17px;
+        }
+
+        th,
+        tr {
+            font-family: Arial, Helvetica, sans-serif;
+            padding: 12px 12px;
+            background-color: aquamarine;
+        }
+
+        th:first-child {
+            border-radius: 10px 0 0 0;
+            border-bottom-color: darkblue;
+        }
+
+        th:last-child {
+            border-radius: 0 10px 0 0;
+        }
+
+        td {
+            background: beige;
+            border-top: solid 1px #102300;
+            border-bottom: solid 1px #102300;
+        }
+
+        .userinput {
+            font-family: Arial, Helvetica, sans-serif;
+            align-content: right;
+            padding: 20px 20px 20px 20px;
+            border-radius: 8px;
+            background: lightgray;
+            display: inline-block;
+        }
+
+        .requiredAlert {
+            text-align: right;
+            font-size: 0.7em;
+            color: red;
+            padding-right: 2px;
+
+        }
+
+        textarea {
+            resize: none;
+            box-sizing: border-box;
+        }
+
+        label {
+            display: inline-block;
+            clear: left;
+            width: 250px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .outputtable {
+            display: inline-block;
+            padding: 20px 0 20px 0;
+        }
+
+        .button {
+            background-color: lightblue;
+            border: none;
+            color: black;
+            padding: 10px 22px;
+            text-align: center;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+    </style>
+    <script>
+        var edit_flag = 0;
+        var row_pointer = 1;
+        var iterate = 0;
+        var addFlag = 0;
+        var textBoxIdArray = ["FirstName", "LastName", "Address", "Age"];                                                                                                  /* add element id here */
+        var requiredIdArray = ["FirstNameNotFound", "LastNameNotFound", "AddressNotFound", "AgeNotFound", "GenderNotFound"];                                                       /* add missingid here */
+        var messageIfMissingRequired = ["Fill First Name", "Fill Last Name", "Fill Address", "Fill Age", "Select Gender"];                                                      /* add comment if missing here */
+        var inputType = [0, 0, 0, 1];                                                                                                                                     /* one for number, zero for text */
+        var messageIfWrongInput = ["Text Input Expected", "Integer Input Expected"];
+
+        function add() {
+            addFlag = 0;
+            for (iterate = 0; iterate < textBoxIdArray.length; iterate++) {
+                document.getElementById(requiredIdArray[iterate]).innerHTML = "&nbsp";
+            }
+            document.getElementById(requiredIdArray[iterate]).innerHTML = "&nbsp";
+
+            for (iterate = 0; iterate < textBoxIdArray.length; iterate++) {
+                if (document.getElementById("userForm").elements[iterate].value == "" || !document.getElementById("userForm").elements[iterate].value.replace(/\s/g, '').length) {
+                    document.getElementById(requiredIdArray[iterate]).innerHTML = messageIfMissingRequired[iterate];
+                    addFlag++;
+                }
+                else if (inputType[iterate] == 0 && !isNaN(document.getElementById("userForm").elements[iterate].value)) {
+                    document.getElementById(requiredIdArray[iterate]).innerHTML = messageIfWrongInput[0];
+                    addFlag++;
+                }
+                else if (inputType[iterate] == 1 && isNaN(document.getElementById("userForm").elements[iterate].value)) {
+                    document.getElementById(requiredIdArray[iterate]).innerHTML = messageIfWrongInput[1];
+                    addFlag++;
+                }
+            }
+            if (document.getElementById("maleClick").checked == false && document.getElementById("femaleClick").checked == false) {
+                document.getElementById(requiredIdArray[iterate]).innerHTML = messageIfMissingRequired[iterate];
+                addFlag++;
+            }
+
+            if (addFlag == 0) {
+                if (edit_flag == 0) {
+                    var table = document.getElementById("DisplayTable");
+                    var row = table.insertRow(row_pointer);
+
+                    for (iterate = 0; iterate < textBoxIdArray.length; iterate++)
+                        row.insertCell(iterate).innerHTML = document.getElementById("userForm").elements[iterate].value;
+
+                    if (document.getElementById("maleClick").checked)
+                        row.insertCell(iterate).innerHTML = document.getElementById("maleClick").value;
+                    else
+                        row.insertCell(iterate).innerHTML = document.getElementById("femaleClick").value;
+
+                    row.insertCell(iterate + 1).innerHTML = '<button id=' + row_pointer + ' type="button" onclick="edit(this.id)">Edit</button>';
+                    row_pointer++;
+                }
+                else {
+                    for (iterate = 0; iterate < textBoxIdArray.length; iterate++)
+                        document.getElementById("DisplayTable").rows[edit_flag].cells[iterate].innerHTML = document.getElementById(textBoxIdArray[iterate]).value;
+
+                    if (document.getElementById("maleClick").checked)
+                        document.getElementById("DisplayTable").rows[edit_flag].cells[iterate].innerHTML = document.getElementById("maleClick").value;
+                    else
+                        document.getElementById("DisplayTable").rows[edit_flag].cells[iterate].innerHTML = document.getElementById("femaleClick").value;
+                    edit_flag = 0;
+                }
+
+                resetAll();
+            }
+        }
+
+        function edit(name) {
+
+            edit_flag = document.getElementById(name).id;
+            for (iterate = 0; iterate < textBoxIdArray.length; iterate++)
+                document.getElementById(textBoxIdArray[iterate]).value = document.getElementById("DisplayTable").rows[edit_flag].cells[iterate].innerHTML;
+
+            if (document.getElementById("DisplayTable").rows[edit_flag].cells[iterate].innerHTML == "Male")
+                document.getElementById("maleClick").checked = true;
+            else
+                document.getElementById("femaleClick").checked = true;
+        }
+
+        function resetAll() {
+            for (iterate = 0; iterate < textBoxIdArray.length; iterate++) {
+                document.getElementById(textBoxIdArray[iterate]).value = "";
+                document.getElementById(requiredIdArray[iterate]).innerHTML = "&nbsp";
+            }
+            document.getElementById(requiredIdArray[iterate]).innerHTML = "&nbsp";
+            document.getElementById("maleClick").checked = false;
+            document.getElementById("femaleClick").checked = false;
+        }
+
+    </script>
+</head>
+
+<body>
+    <p id="demo"></p>
+    <br>
+    <h3>USER FORM
+    </h3>
+    <br>
+    <form id="userForm">
+        <div class="userinput">
+            <br>
+            <label>First name:</label><input class="box" id="FirstName" type="text" name="First name" placeholder="Enter your First name"><br>
+
+            <p class="requiredAlert" id="FirstNameNotFound">&nbsp</p><br>
+
+            <label>Last name:</label><input class="box" id="LastName" type="text" name="Last name" placeholder="Enter your Last name"><br>
+
+            <p class="requiredAlert" id="LastNameNotFound">&nbsp</p><br>
+
+            <label>Address:</label><textarea class="box" id="Address" rows="3" cols="18" name="Address" placeholder="Enter your Address"></textarea><br>
+
+            <p class="requiredAlert" id="AddressNotFound">&nbsp</p><br>
+
+            <label>Age:</label><input class="box" id="Age" type="text" name="Age" placeholder="Enter your Age"><br>
+            <!--declare parameter id, value, class name here-->
+
+            <p class="requiredAlert" id="AgeNotFound">&nbsp</p><br>
+
+            <label>Gender:</label><input id="maleClick" type="radio" name="Gender" value="Male"> Male &nbsp&nbsp
+            <input id="femaleClick" type="radio" name="Gender" value="Female"> Female <br>
+
+            <p class="requiredAlert" id="GenderNotFound">&nbsp</p>
+            <br>
+            <div class="buttonLine">
+                <button class="button" type="button" value="add" onclick="add()">Add</button>&nbsp
+                <button class="button" type="button" value="reset" onclick="resetAll()">Reset</button>
+            </div>
+            <br>
+        </div>
+        <br>
+    </form>
+    <br>
+    <br>
+    <div class="outputtable">
+        <table id="DisplayTable">
+            <tr>
+                <th>First name</th>
+                <th>Last name</th>
+                <th>Address</th>
+                <th>Age</th>
+                <!--add parameter columns for table here-->
+                <th>Gender</th>
+                <th>Edit</th>
+            </tr>
+        </table>
+    </div>
+</body>
+
+</html>
